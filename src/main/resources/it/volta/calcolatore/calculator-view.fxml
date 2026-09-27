@@ -88,17 +88,16 @@
         <Button text="-" onAction="#onOperatorClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="3" GridPane.rowIndex="2"/>
 
-        <Button text="C" onAction="#onOperatorClick" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="C" onAction="#onClearClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="0" GridPane.rowIndex="3"/>
         <Button text="0" onAction="#onNumberClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-        <Button text="." maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="." onAction="#onDecimalClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="2" GridPane.rowIndex="3"/>
-        <!-- onAction="#onDecimalClick" -->
         <Button text="+" onAction="#onOperatorClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="3" GridPane.rowIndex="3"/>
 
-        <Button text="=" onAction="#onOperatorClick" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="=" onAction="#onEqualsClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="0"
                 GridPane.rowIndex="4"
                 GridPane.columnSpan="4"/>
