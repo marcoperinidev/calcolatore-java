@@ -1,0 +1,64 @@
+name: Build native packages
+
+on:
+  push:
+    branches:
+      - master
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            package-type: exe
+            artifact-name: Calcolatore-Windows
+
+          - os: ubuntu-latest
+            package-type: deb
+            artifact-name: Calcolatore-Linux
+
+          - os: macos-15-intel
+            package-type: dmg
+            artifact-name: Calcolatore-macOS
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Install Linux packaging tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fakeroot
+
+      - name: Build JavaFX runtime
+        run: mvn --batch-mode clean javafx:jlink
+
+      - name: Create native package
+        run: >
+          jpackage
+          --type ${{ matrix.package-type }}
+          --name Calcolatore
+          --app-version 1.0.0
+          --module it.volta.calcolatore/it.volta.calcolatore.Launcher
+          --runtime-image target/app
+          --dest dist
+
+      - name: Upload package
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: dist/*
+          if-no-files-found: error
