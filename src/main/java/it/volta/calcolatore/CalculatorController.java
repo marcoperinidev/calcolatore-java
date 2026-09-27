@@ -4,6 +4,10 @@ import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+// per gestire la grandezza del font quando il numero diventa troppo lungo
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import java.util.Locale;
 
 /* controlla comportamento interfaccia
 * e.g. "utente clicca su tasto 7" */
@@ -23,18 +27,66 @@ public class CalculatorController {
     private double firstNumber;
     private String operator;
 
+    // per gestire il fatto che appende cifre dopo il risultato dell'operazione precedente
+    // True quando il display mostra il risultato dell'operazione precedente
+    private boolean resultDisplayed = false;
+
     // gestisce numeri da 0 a 9
     @FXML
     private void onNumberClick(ActionEvent event) {
 
         Button button = (Button) event.getSource();
         String number = button.getText();
+        /*
+         * Se il display contiene il risultato precedente,
+         * premendo un numero inizio una nuova operazione.
+         *
+         * Esempio:
+         * 2 + 2 = 4
+         * premo 3 -> display = 3, non 43
+         */
+        if (resultDisplayed) {
+            display.setText(number);
 
+            resultDisplayed = false;
+            firstNumber = 0;
+            operator = null;
+
+            adjustDisplayFont();
+            return;
+        }
+
+        String currentNumber;
+        //recupera solo l'operando che sto scrivendo
+        if (operator == null) {
+            currentNumber = display.getText();
+        } else {
+            int operatorPosition =
+                    display.getText().lastIndexOf(operator);
+
+            currentNumber =
+                    display.getText().substring(operatorPosition + 1);
+        }
+
+        // se c'è un "." permette al massimo 4 decimali
+        if (currentNumber.contains(".")) {
+
+            String decimals =
+                    currentNumber.substring(currentNumber.indexOf(".") +1);
+
+            if (decimals.length() >= 4) {
+                return;
+            }
+        }
+
+        // sostituisce lo 0 iniziale
         if (display.getText().equals("0")) {
             display.setText(number);
         } else {
             display.appendText(number);
         }
+
+        adjustDisplayFont();
     }
 
     // gestisce +, -, *, /
@@ -52,12 +104,31 @@ public class CalculatorController {
         operator = button.getText();
 
         display.appendText(operator);
+
+        // se mostrava il risultato, continua il calcolo dal risultato. esempio:
+        // 2 + 2 = 4
+        // poi + --> 4+
+        resultDisplayed = false;
+
+        adjustDisplayFont();
     }
 
     // gestisce il punto decimale (per entrambi gli operandi che possono essere entrambi con decimale)
     // inoltre se il currentNumber è vuoto e si preme l'operatore decimale, mostro "0."
     @FXML
     private void onDecimalClick() {
+
+        // se premi "." dopo aver ottenuto il risultato inizia nuova operazione da 0
+        if (resultDisplayed) {
+            display.setText("0.");
+
+            resultDisplayed = false;
+            firstNumber = 0;
+            operator = null;
+
+            adjustDisplayFont();
+            return;
+        }
 
         String currentText = display.getText();
         String currentNumber;
@@ -68,7 +139,8 @@ public class CalculatorController {
             int operatorPosition = currentText.lastIndexOf(operator);
             currentNumber = currentText.substring(operatorPosition + 1);
         }
-
+        // operando può contenere un solo punto
+        // se premi "." subito dopo un operatore (es) 5+ diventa 5+0.
         if (!currentNumber.contains(".")) {
             if (currentNumber.isEmpty()) {
                 display.appendText("0.");
@@ -76,6 +148,8 @@ public class CalculatorController {
                 display.appendText(".");
             }
         }
+
+        adjustDisplayFont();
     }
 
     // cancella operazione corrente
@@ -84,6 +158,9 @@ public class CalculatorController {
         display.setText("0");
         firstNumber = 0;
         operator = null;
+        resultDisplayed = false;
+
+        adjustDisplayFont();
     }
 
     // esegue il calcolo
@@ -119,14 +196,67 @@ public class CalculatorController {
         };
 
         display.setText(formatResult(result));
-    }
 
+        // operazione è terminata
+        // operator torna null così "=" premuto di nuovo non continua a ricalcolare la vecchia operazione
+        operator = null;
+        resultDisplayed = true;
+    }
+    // formatta il risultato
     private String formatResult(double result) {
         // se modulo 1, la divisione per 1 è "0" non esistono decimali significativi da mostrare quindi mostriamo l'intero
         if (result % 1 == 0) {
             return String.valueOf((long) result);
         }
+        /*
+         * %.4f = massimo 4 cifre decimali.
+         *
+         * replaceAll("0+$", "")
+         * elimina gli zeri finali.
+         *
+         * replaceAll("\\.$", "")
+         * elimina un eventuale punto rimasto alla fine.
+         */
+        return String.format(Locale.US, "%.4f", result)
+                .replaceAll("0*$", "")
+                .replaceAll("\\.$", "");
+    }
 
-        return String.valueOf(result);
+    // riduce automaticamente il font quando il testo non entra nel display
+    private void adjustDisplayFont() {
+
+        double fontSize = 38;
+        double minFontSize = 24;
+
+        // tolgo spazio per tener conto del padding display
+        double availableWidth = display.getWidth() - 35;
+
+        // creo oggetto text solo per misurare quanto spazio occupa il contenuto ma non viene mostrato in GUI
+        Text text = new Text(display.getText());
+
+        // finché il testo non entra riduco la grandezza 2px alla volta
+        while (fontSize > minFontSize) {
+
+            text.setFont(
+                    Font.font(
+                            display.getFont().getFamily(),
+                            fontSize
+                    )
+            );
+
+            double textWidth =
+                    text.getLayoutBounds().getWidth();
+
+            if (textWidth < availableWidth) {
+                break;
+            }
+            fontSize -= 2;
+        }
+
+        // va applicata la dimensione trovata
+        // il resto viene sempre dal CSS
+        display.setStyle(
+                "-fx-font-size: " + fontSize + "px;"
+        );
     }
 }
