@@ -1,0 +1,28 @@
+# Default: Git normalizza i file di testo a LF nel repository
+* text=auto
+
+# Script Unix: mantieni LF
+*.sh text eol=lf
+mvnw text eol=lf
+
+# Script Windows: mantieni CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+mvnw.cmd text eol=crlf
+
+# File di progetto/testo: LF
+*.java text eol=lf
+*.xml text eol=lf
+*.fxml text eol=lf
+*.properties text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+
+# File binari
+*.jar binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary

@@ -1,0 +1,80 @@
+.root {
+    -fx-background-color: #8b956d;
+}
+
+.display {
+    -fx-background-color: #9bbc0f;
+    -fx-text-fill: #0f380f;
+
+    -fx-font-family: "Press Start 2P", cursive;
+    -fx-font-size: 44px;
+
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+
+    -fx-border-color: #306230;
+    -fx-border-width: 5px;
+
+    -fx-padding: 10px 20px 10px 10px;
+    -fx-opacity: 0.96;
+}
+
+/*effetto vetro*/
+.display-glass {
+    -fx-background-color:
+        linear-gradient(
+            from 0% 0% to 100% 100%,
+            rgba(255, 255, 255, 0.18) 0%,
+            rgba(255, 255, 255, 0.06) 35%,
+            rgba(255, 255, 255, 0.00) 55%,
+            rgba(15, 56, 15, 0.08) 100%
+        );
+    -fx-background-radius: 4px;
+}
+
+/* effetto LCD*/
+.display-grid {
+    -fx-background-color:
+            linear-gradient(
+                    rgba(15, 56, 15, 0.07) 1px,
+                    transparent 1px
+            ),
+            linear-gradient(
+                    90deg,
+                    rgba(15, 56, 15, 0.07) 1px,
+                    transparent 1px
+            );
+
+    -fx-background-size: 4px 4px;
+    -fx-background-radius: 4px;
+}
+
+/* tutti i bottoni */
+.button {
+    -fx-background-color: #59634a;
+    -fx-text-fill: #d7e3a1;
+
+    -fx-font-family: "Press Start 2P", cursive;
+    -fx-font-size: 20px;
+
+    -fx-background-radius: 3px;
+    -fx-border-radius: 3px;
+
+    -fx-border-color: #3d4635;
+    -fx-border-width: 2px;
+
+    -fx-effect: dropshadow(
+        gaussian,
+        rgba(0, 0, 0, 0.35),
+        2,
+        0,
+        0,
+        2
+    );
+}
+
+/*quando premi un tasto*/
+.button:pressed {
+    -fx-background-color: #3f4937;
+    -fx-translate-y: 1px;
+}
