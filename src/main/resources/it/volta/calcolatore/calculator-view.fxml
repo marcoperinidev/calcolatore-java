@@ -61,43 +61,44 @@
             <RowConstraints percentHeight="20"/>
         </rowConstraints>
 
-        <Button text="7" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="7" onAction="#onNumberClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <Button text="8" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="8" onAction="#onNumberClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-        <Button text="9" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="9" onAction="#onNumberClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="2" GridPane.rowIndex="0"/>
-        <Button text="÷" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="÷" onAction="#onOperatorClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="3" GridPane.rowIndex="0"/>
 
-        <Button text="4" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="4" onAction="#onNumberClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-        <Button text="5" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="5" onAction="#onNumberClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        <Button text="6" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="6" onAction="#onNumberClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-        <Button text="×" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="×" onAction="#onOperatorClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="3" GridPane.rowIndex="1"/>
 
-        <Button text="1" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="1" onAction="#onNumberClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-        <Button text="2" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="2" onAction="#onNumberClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        <Button text="3" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="3" onAction="#onNumberClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="2" GridPane.rowIndex="2"/>
-        <Button text="-" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="-" onAction="#onOperatorClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="3" GridPane.rowIndex="2"/>
 
-        <Button text="C" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="C" onAction="#onOperatorClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-        <Button text="0" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="0" onAction="#onNumberClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="1" GridPane.rowIndex="3"/>
         <Button text="." maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="2" GridPane.rowIndex="3"/>
-        <Button text="+" maxWidth="Infinity" maxHeight="Infinity"
+        <!-- onAction="#onDecimalClick" -->
+        <Button text="+" onAction="#onOperatorClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="3" GridPane.rowIndex="3"/>
 
-        <Button text="=" maxWidth="Infinity" maxHeight="Infinity"
+        <Button text="=" onAction="#onOperatorClick" maxWidth="Infinity" maxHeight="Infinity"
                 GridPane.columnIndex="0"
                 GridPane.rowIndex="4"
                 GridPane.columnSpan="4"/>

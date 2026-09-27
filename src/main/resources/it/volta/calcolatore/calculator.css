@@ -32,22 +32,6 @@
     -fx-background-radius: 4px;
 }
 
-/* effetto LCD*/
-.display-grid {
-    -fx-background-color:
-            linear-gradient(
-                    rgba(15, 56, 15, 0.07) 1px,
-                    transparent 1px
-            ),
-            linear-gradient(
-                    90deg,
-                    rgba(15, 56, 15, 0.07) 1px,
-                    transparent 1px
-            );
-
-    -fx-background-size: 4px 4px;
-    -fx-background-radius: 4px;
-}
 
 /* tutti i bottoni */
 .button {

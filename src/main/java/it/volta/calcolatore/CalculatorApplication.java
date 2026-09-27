@@ -5,9 +5,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.util.Objects;
+
+/* classe che avvia JavaFX e mostre le finestre */
 
 public class CalculatorApplication extends Application {
     @Override
