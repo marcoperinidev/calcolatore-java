@@ -186,6 +186,15 @@ public class CalculatorController {
 
         double secondNumber = Double.parseDouble(secondNumberText);
 
+        // divisione per 0
+        if (operator.equals("÷") && secondNumber == 0) {
+            display.setText("Cannot divide by zero");
+            operator = null;
+            resultDisplayed = true;
+            adjustDisplayFont();
+            return;
+        }
+
         // switch "moderno" contratto
         double result = switch (operator) {
             case "+" -> calculator.add(firstNumber, secondNumber);
