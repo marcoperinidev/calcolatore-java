@@ -4,12 +4,35 @@ on:
   push:
     branches:
       - master
+    tags:
+      - 'v*'
 
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
 
+  prepare-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "${GITHUB_REF_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" > /dev/null 2>&1 || \
+          gh release create "${GITHUB_REF_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes
+
+
   build-windows:
+    needs: prepare-release
     runs-on: windows-latest
 
     steps:
@@ -48,8 +71,17 @@ jobs:
           path: dist/*.exe
           if-no-files-found: error
 
+      - name: Publish Windows installer to Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.ref_name }}" "dist/Calcolatore-Setup-1.0.0.exe" --repo "${{ github.repository }}" --clobber
+
 
   build-linux:
+    needs: prepare-release
     runs-on: ubuntu-latest
 
     steps:
@@ -89,8 +121,16 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
+      - name: Publish Linux package to Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.ref_name }}" dist/*.deb --repo "${{ github.repository }}" --clobber
+
 
   build-macos:
+    needs: prepare-release
     runs-on: macos-15-intel
 
     steps:
@@ -123,3 +163,10 @@ jobs:
           name: Calcolatore-macOS
           path: dist/*
           if-no-files-found: error
+
+      - name: Publish macOS package to Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.ref_name }}" dist/*.dmg --repo "${{ github.repository }}" --clobber
