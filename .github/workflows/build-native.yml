@@ -8,23 +8,49 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            package-type: exe
-            artifact-name: Calcolatore-Windows
 
-          - os: ubuntu-latest
-            package-type: deb
-            artifact-name: Calcolatore-Linux
+  build-windows:
+    runs-on: windows-latest
 
-          - os: macos-15-intel
-            package-type: dmg
-            artifact-name: Calcolatore-macOS
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
 
-    runs-on: ${{ matrix.os }}
+      - name: Set up Java 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build JavaFX runtime
+        run: mvn --batch-mode clean javafx:jlink
+
+      - name: Create Windows app image
+        run: >
+          jpackage
+          --type app-image
+          --name Calcolatore
+          --app-version 1.0.0
+          --module it.volta.calcolatore/it.volta.calcolatore.Launcher
+          --runtime-image target/app
+          --dest dist-app
+
+      - name: Build Windows installer with Inno Setup
+        shell: powershell
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "packaging\windows\calcolatore.iss"
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v7
+        with:
+          name: Calcolatore-Windows
+          path: dist/*.exe
+          if-no-files-found: error
+
+
+  build-linux:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -38,7 +64,6 @@ jobs:
           cache: maven
 
       - name: Install Linux packaging tools
-        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y fakeroot
@@ -46,19 +71,55 @@ jobs:
       - name: Build JavaFX runtime
         run: mvn --batch-mode clean javafx:jlink
 
-      - name: Create native package
+      - name: Create Linux package
         run: >
           jpackage
-          --type ${{ matrix.package-type }}
+          --type deb
+          --name Calcolatore
+          --app-version 1.0.0
+          --module it.volta.calcolatore/it.volta.calcolatore.Launcher
+          --runtime-image target/app
+          --dest dist
+          --linux-shortcut
+
+      - name: Upload Linux package
+        uses: actions/upload-artifact@v7
+        with:
+          name: Calcolatore-Linux
+          path: dist/*
+          if-no-files-found: error
+
+
+  build-macos:
+    runs-on: macos-15-intel
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build JavaFX runtime
+        run: mvn --batch-mode clean javafx:jlink
+
+      - name: Create macOS package
+        run: >
+          jpackage
+          --type dmg
           --name Calcolatore
           --app-version 1.0.0
           --module it.volta.calcolatore/it.volta.calcolatore.Launcher
           --runtime-image target/app
           --dest dist
 
-      - name: Upload package
+      - name: Upload macOS package
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.artifact-name }}
+          name: Calcolatore-macOS
           path: dist/*
           if-no-files-found: error
