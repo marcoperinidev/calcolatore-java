@@ -14,25 +14,47 @@ permissions:
 
 jobs:
 
-  prepare-release:
+  prepare:
     runs-on: ubuntu-latest
 
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is_release: ${{ steps.version.outputs.is_release }}
+
     steps:
+      - name: Determine version
+        id: version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" && "$GITHUB_REF_NAME" == v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+            IS_RELEASE="true"
+          else
+            VERSION="0.0.${GITHUB_RUN_NUMBER}"
+            IS_RELEASE="false"
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "is_release=$IS_RELEASE" >> "$GITHUB_OUTPUT"
+
+          echo "Building version: $VERSION"
+          echo "Release build: $IS_RELEASE"
+
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: steps.version.outputs.is_release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view "${GITHUB_REF_NAME}" \
-            --repo "${GITHUB_REPOSITORY}" > /dev/null 2>&1 || \
-          gh release create "${GITHUB_REF_NAME}" \
-            --repo "${GITHUB_REPOSITORY}" \
-            --title "${GITHUB_REF_NAME}" \
+          gh release view "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1 || \
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$GITHUB_REF_NAME" \
             --generate-notes
 
 
   build-windows:
-    needs: prepare-release
+    needs: prepare
     runs-on: windows-latest
 
     steps:
@@ -54,13 +76,15 @@ jobs:
           jpackage
           --type app-image
           --name Calcolatore
-          --app-version 1.0.0
+          --app-version ${{ needs.prepare.outputs.version }}
           --module it.volta.calcolatore/it.volta.calcolatore.Launcher
           --runtime-image target/app
           --dest dist-app
 
       - name: Build Windows installer with Inno Setup
         shell: powershell
+        env:
+          APP_VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "packaging\windows\calcolatore.iss"
 
@@ -72,16 +96,19 @@ jobs:
           if-no-files-found: error
 
       - name: Publish Windows installer to Release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: needs.prepare.outputs.is_release == 'true'
         shell: powershell
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release upload "${{ github.ref_name }}" "dist/Calcolatore-Setup-1.0.0.exe" --repo "${{ github.repository }}" --clobber
+          gh release upload "${{ github.ref_name }}" `
+            "dist/Calcolatore-Setup-${{ needs.prepare.outputs.version }}.exe" `
+            --repo "${{ github.repository }}" `
+            --clobber
 
 
   build-linux:
-    needs: prepare-release
+    needs: prepare
     runs-on: ubuntu-latest
 
     steps:
@@ -108,7 +135,7 @@ jobs:
           jpackage
           --type deb
           --name Calcolatore
-          --app-version 1.0.0
+          --app-version ${{ needs.prepare.outputs.version }}
           --module it.volta.calcolatore/it.volta.calcolatore.Launcher
           --runtime-image target/app
           --dest dist
@@ -118,19 +145,22 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: Calcolatore-Linux
-          path: dist/*
+          path: dist/*.deb
           if-no-files-found: error
 
       - name: Publish Linux package to Release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: needs.prepare.outputs.is_release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release upload "${{ github.ref_name }}" dist/*.deb --repo "${{ github.repository }}" --clobber
+          gh release upload "${{ github.ref_name }}" \
+            dist/*.deb \
+            --repo "${{ github.repository }}" \
+            --clobber
 
 
   build-macos:
-    needs: prepare-release
+    needs: prepare
     runs-on: macos-15-intel
 
     steps:
@@ -152,7 +182,7 @@ jobs:
           jpackage
           --type dmg
           --name Calcolatore
-          --app-version 1.0.0
+          --app-version ${{ needs.prepare.outputs.version }}
           --module it.volta.calcolatore/it.volta.calcolatore.Launcher
           --runtime-image target/app
           --dest dist
@@ -161,12 +191,15 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: Calcolatore-macOS
-          path: dist/*
+          path: dist/*.dmg
           if-no-files-found: error
 
       - name: Publish macOS package to Release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: needs.prepare.outputs.is_release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release upload "${{ github.ref_name }}" dist/*.dmg --repo "${{ github.repository }}" --clobber
+          gh release upload "${{ github.ref_name }}" \
+            dist/*.dmg \
+            --repo "${{ github.repository }}" \
+            --clobber

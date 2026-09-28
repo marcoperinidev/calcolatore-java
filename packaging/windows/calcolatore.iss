@@ -1,11 +1,13 @@
+#define MyAppVersion GetEnv("APP_VERSION")
+
 [Setup]
 AppId=CalcolatoreJavaVolta
 AppName=Calcolatore
-AppVersion=1.0.0
+AppVersion={#MyAppVersion}
 DefaultDirName={autopf}\Calcolatore
 DefaultGroupName=Calcolatore
 OutputDir=..\..\dist
-OutputBaseFilename=Calcolatore-Setup-1.0.0
+OutputBaseFilename=Calcolatore-Setup-{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
